@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const { Kafka } = require("kafkajs");
-const { saveMessage, getMessages, saveUser, findUser } = require("./db");
+const { saveMessage, getMessages, saveUser, findUser, getAllUsers } = require("./db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -59,21 +59,25 @@ wss.on("connection", async (ws) => {
 
 // Kafka consumer → broadcast
 async function run() {
-  await producer.connect();
-  await consumer.connect();
-  await consumer.subscribe({ topic: TOPIC });
+  try {
+    await producer.connect();
+    await consumer.connect();
+    await consumer.subscribe({ topic: TOPIC });
 
-  await consumer.run({
-    eachMessage: async ({ message }) => {
-      const msg = JSON.parse(message.value.toString());
+    await consumer.run({
+      eachMessage: async ({ message }) => {
+        const msg = JSON.parse(message.value.toString());
 
-      clients.forEach((ws) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "message", data: msg }));
-        }
-      });
-    },
-  });
+        clients.forEach((ws) => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "message", data: msg }));
+          }
+        });
+      },
+    });
+  } catch (error) {
+    console.error("Kafka error:", error);
+  }
 }
 
 run();
@@ -114,5 +118,15 @@ app.post("/login", async (req, res) => {
     res.send({ message: "Login successful", token });
   } catch (error) {
     res.status(500).send({ error: "Error logging in" });
+  }
+});
+
+// Get all users
+app.get("/users", async (req, res) => {
+  try {
+    const users = await getAllUsers();
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ error: "Error fetching users" });
   }
 });

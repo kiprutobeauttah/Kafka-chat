@@ -2,195 +2,56 @@
 <html>
 <head>
   <title>Kafka Chat</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      background-color: #f0f2f5;
-    }
-
-    #container {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
-
-    #sidebar {
-      width: 30%;
-      background: #ffffff;
-      border-right: 1px solid #ddd;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #sidebar h2 {
-      padding: 15px;
-      margin: 0;
-      background: #00a884;
-      color: white;
-      text-align: center;
-    }
-
-    #contacts {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .contact {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-    }
-
-    .contact:hover {
-      background: #f0f0f0;
-    }
-
-    .contact img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
-    #chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #chat-header {
-      padding: 15px;
-      background: #00a884;
-      color: white;
-      display: flex;
-      align-items: center;
-    }
-
-    #chat {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background: #e5ddd5;
-    }
-
-    .message {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 10px;
-      max-width: 60%;
-    }
-
-    .message.sent {
-      background: #dcf8c6;
-      margin-left: auto;
-    }
-
-    .message.received {
-      background: #ffffff;
-    }
-
-    #message-input {
-      display: flex;
-      padding: 10px;
-      background: #ffffff;
-      border-top: 1px solid #ddd;
-    }
-
-    #message-input input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 20px;
-      outline: none;
-    }
-
-    #message-input button {
-      background: #00a884;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      margin-left: 10px;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="login">
+    <div id="login-form">
+      <h2>Kafka Chat</h2>
+      <p>Welcome! Please login or register to continue.</p>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="login-btn" onclick="login()">Login</button>
+      <button id="register-btn" onclick="register()">Register</button>
+    </div>
+  </div>
+
   <div id="container">
     <div id="sidebar">
-      <h2>Contacts</h2>
+      <div id="user-profile">
+        <div class="profile-icon"></div>
+        <div class="profile-info">
+          <div class="profile-name"></div>
+          <div class="profile-status">
+            <span class="status-indicator"></span>
+            <span>Secure Connection</span>
+          </div>
+        </div>
+      </div>
+      <h2>Available Users</h2>
       <div id="contacts">
-        <div class="contact">
-          <img src="https://via.placeholder.com/40" alt="Avatar" />
-          <span>John Doe</span>
-        </div>
-        <div class="contact">
-          <img src="https://via.placeholder.com/40" alt="Avatar" />
-          <span>Jane Smith</span>
-        </div>
+        <!-- Users will be loaded dynamically -->
       </div>
     </div>
 
     <div id="chat-area">
       <div id="chat-header">
-        <h3>Chat with John Doe</h3>
+        <h3>Select a user to start secure chat</h3>
+        <div id="credit">@kiprutobeauttah</div>
       </div>
       <div id="chat">
-        <div class="message received">
-          <span>Hello!</span>
-        </div>
-        <div class="message sent">
-          <span>Hi there!</span>
+        <div class="info-message">
+          <p>👥 Create more user accounts to test the chat functionality</p>
+          <p>Select a user from the sidebar to begin secure messaging</p>
         </div>
       </div>
       <div id="message-input">
-        <input id="msg" placeholder="Type a message..." />
+        <input id="msg" placeholder="Type an encrypted message..." />
         <button onclick="sendMsg()">➤</button>
       </div>
     </div>
   </div>
 
-  <script>
-    const ws = new WebSocket("ws://localhost:3000");
-    const chat = document.getElementById("chat");
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (data.type === "history") {
-        data.data.forEach(renderMessage);
-      }
-
-      if (data.type === "message") {
-        renderMessage(data.data);
-      }
-    };
-
-    function renderMessage(msg) {
-      const div = document.createElement("div");
-      div.className = `message ${msg.user === "Authenticated User" ? "sent" : "received"}`;
-      div.textContent = `${msg.user}: ${msg.message}`;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function sendMsg() {
-      const message = document.getElementById("msg").value;
-
-      ws.send(JSON.stringify({
-        user: "Authenticated User",
-        message: message
-      }));
-
-      document.getElementById("msg").value = "";
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

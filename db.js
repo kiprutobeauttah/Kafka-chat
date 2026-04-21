@@ -71,4 +71,17 @@ function findUser(username) {
   });
 }
 
-module.exports = { saveMessage, getMessages, saveUser, findUser };
+function getAllUsers() {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT username FROM users ORDER BY username",
+      [],
+      (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      }
+    );
+  });
+}
+
+module.exports = { saveMessage, getMessages, saveUser, findUser, getAllUsers };
