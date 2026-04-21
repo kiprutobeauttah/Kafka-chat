@@ -73,7 +73,7 @@ async function register() {
 }
 
 function connectWebSocket() {
-  const ws = new WebSocket("ws://localhost:3000");
+  const ws = new WebSocket(`ws://${window.location.host}`);
   const chat = document.getElementById("chat");
 
   ws.onmessage = (event) => {

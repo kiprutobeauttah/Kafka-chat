@@ -5,6 +5,7 @@ const { Kafka } = require("kafkajs");
 const { saveMessage, getMessages, saveUser, findUser, getAllUsers } = require("./db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const os = require("os");
 
 const app = express();
 const server = http.createServer(app);
@@ -82,8 +83,19 @@ async function run() {
 
 run();
 
-server.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+server.listen(3000, '0.0.0.0', () => {
+  console.log("Server running on port 3000");
+  console.log("\nAccess URLs:");
+  console.log("- Local: http://localhost:3000");
+  
+  const interfaces = os.networkInterfaces();
+  Object.keys(interfaces).forEach((name) => {
+    interfaces[name].forEach((iface) => {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        console.log(`- Network: http://${iface.address}:3000`);
+      }
+    });
+  });
 });
 
 // User registration
