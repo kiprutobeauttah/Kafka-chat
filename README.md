@@ -3,15 +3,12 @@
   _Easier way to test Kafka_
 
 ## Description
-This is a Kafka-based chat application built with Node.js. It leverages WebSocket for real-time communication, Kafka for message broadcasting, and SQLite for persistent storage. The application also includes user authentication using bcrypt and JWT.
+This is a Kafka-based chat application built with Node.js. It leverages WebSocket for real-time communication, Kafka for message broadcasting, and PostgreSQL with Prisma for persistent storage. The application also includes user authentication using bcrypt and JWT.
 
 ### Features
 - Real-time messaging with WebSocket.
 - Kafka integration for scalable message broadcasting.
-- Database for storing messages and user data. - chose SQlite for local testing
-- User authentication with bcrypt and JWT.
-- Login and registration page for new users.
-- frontend for client interaction.
+- PostgreSQL database with Prisma ORM for storing messages and user data.
 
 ## Workflow
 The following Mermaid diagram illustrates the workflow of the Kafka Chat Application:
@@ -19,7 +16,7 @@ The following Mermaid diagram illustrates the workflow of the Kafka Chat Applica
 ```mermaid
 graph TD
     A[Client] -->|WebSocket| B[WebSocket Server]
-    B -->|Save Message| C[SQLite Database]
+    B -->|Save Message| C[PostgreSQL Database]
     B -->|Send to Kafka| D[Kafka Producer]
     D --> E[Kafka Broker]
     E --> F[Kafka Consumer]
@@ -30,7 +27,7 @@ graph TD
 To run this application, you need the following tools:
 - **Kafka**: A distributed event streaming platform. Install and configure Kafka on your system.
 - **Node.js**: JavaScript runtime for running the application.
-- **Database**: database for storing messages and user data. 
+- **PostgreSQL**: Database for storing messages and user data.
 
 ## Installation
 1. Clone the repository:
@@ -45,60 +42,81 @@ To run this application, you need the following tools:
    ```bash
    npm install
    ```
-4. Start the application:
+4. Set up your environment variables:
    ```bash
-   node server.js
+   cp .env.example .env
+   ```
+   Edit `.env` and add your PostgreSQL connection string:
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/kafka_chat"
+   ```
+5. Generate Prisma Client:
+   ```bash
+   npm run prisma:generate
+   ```
+6. Run database migrations:
+   ```bash
+   npm run prisma:migrate
+   ```
+7. Start the application:
+   ```bash
+   npm run dev
    ```
 
+## Database Management
+- **View database**: `npm run prisma:studio`
+- **Create migration**: `npm run prisma:migrate`
+- **Generate client**: `npm run prisma:generate`
+
 ## Auto-Run Scripts
-To simplify starting the Kafka Chat Application, use the provided scripts in the `auto-run` folder:
+To simplify starting the Kafka Chat Application, use the provided scripts in the `kafka` folder:
 
 ### Windows
 Run the `.bat` file:
 ```cmd
-cd auto-run
+cd kafka
 run-kafka-chat.bat
 ```
 
 ### Linux/Mac
 Run the `.sh` file:
 ```bash
-cd auto-run
+cd kafka
 ./run-kafka-chat.sh
 ```
 Ensure the `.sh` file has executable permissions:
 ```bash
-chmod +x auto-run/run-kafka-chat.sh
+chmod +x kafka/run-kafka-chat.sh
 ```
 
 ## Download Kafka
-To download and extract Kafka, use the provided scripts in the `auto-run` folder:
+To download and extract Kafka, use the provided scripts in the `kafka` folder:
 
 #### Windows
 Run the `.bat` file:
 ```cmd
-cd auto-run
-run.bat
+cd kafka
+download-kafka.bat
 ```
 
 #### Linux/Mac
 Run the `.sh` file:
 ```bash
-cd auto-run
-./run.sh
+cd kafka
+./download-kafka.sh
 ```
 Ensure the `.sh` file has executable permissions:
 ```bash
-chmod +x auto-run/run.sh
+chmod +x kafka/download-kafka.sh
 ```
 
 ## Screenshots
 ### Chat Interface
-![Chat Interface](scrt/log-sin.png)
-![Chat Interface](scrt/chat.png)
+![Chat Interface](scrt/new-login.png)
+![Chat Interface](scrt/new-chat.png)
 
 ### Kafka Workflow
 ![Kafka Workflow](scrt/kafka-workflow.png)
 
 ---
-Ensure Kafka is running locally before starting the application. Refer to the Kafka documentation for setup instructions.
+Ensure Kafka and PostgreSQL are running locally before starting the application. Refer to the Kafka and PostgreSQL documentation for setup instructions.

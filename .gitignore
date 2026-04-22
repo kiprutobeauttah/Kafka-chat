@@ -1,3 +1,6 @@
 node_modules
 dist
 chat.db
+*.db
+*.db-journal
+.env

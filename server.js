@@ -23,6 +23,7 @@ const TOPIC = "chat";
 const SECRET_KEY = "your_secret_key";
 
 app.use(express.static("public"));
+app.use('/icons', express.static("public/icons"));
 app.use(express.json());
 
 let clients = [];

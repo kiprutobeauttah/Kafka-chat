@@ -1,87 +1,84 @@
-const sqlite3 = require("sqlite3").verbose();
+const { PrismaClient } = require('@prisma/client');
 
-const db = new sqlite3.Database("./chat.db");
+const prisma = new PrismaClient();
 
-// Create table
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user TEXT,
-      message TEXT,
-      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
+async function saveMessage(user, message) {
+  try {
+    await prisma.messages.create({
+      data: {
+        user,
+        message,
+      },
+    });
+  } catch (error) {
+    console.error('Error saving message:', error);
+    throw error;
+  }
+}
+
+async function getMessages(limit = 50) {
+  try {
+    const messages = await prisma.messages.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+      take: limit,
+    });
+    return messages;
+  } catch (error) {
+    console.error('Error getting messages:', error);
+    throw error;
+  }
+}
+
+async function saveUser(username, password) {
+  try {
+    await prisma.users.create({
+      data: {
+        username,
+        password,
+      },
+    });
+  } catch (error) {
+    console.error('Error saving user:', error);
+    throw error;
+  }
+}
+
+async function findUser(username) {
+  try {
+    const user = await prisma.users.findUnique({
+      where: {
+        username,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error('Error finding user:', error);
+    throw error;
+  }
+}
+
+async function getAllUsers() {
+  try {
+    const users = await prisma.users.findMany({
+      select: {
+        username: true,
+      },
+      orderBy: {
+        username: 'asc',
+      },
+    });
+    return users;
+  } catch (error) {
+    console.error('Error getting all users:', error);
+    throw error;
+  }
+}
+
+// Graceful shutdown
+process.on('beforeExit', async () => {
+  await prisma.$disconnect();
 });
-
-// Create users table
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE,
-      password TEXT
-    )
-  `);
-});
-
-function saveMessage(user, message) {
-  db.run(
-    "INSERT INTO messages (user, message) VALUES (?, ?)",
-    [user, message]
-  );
-}
-
-function getMessages(limit = 50) {
-  return new Promise((resolve, reject) => {
-    db.all(
-      "SELECT * FROM messages ORDER BY id DESC LIMIT ?",
-      [limit],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows.reverse());
-      }
-    );
-  });
-}
-
-function saveUser(username, password) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      "INSERT INTO users (username, password) VALUES (?, ?)",
-      [username, password],
-      function (err) {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
-  });
-}
-
-function findUser(username) {
-  return new Promise((resolve, reject) => {
-    db.get(
-      "SELECT * FROM users WHERE username = ?",
-      [username],
-      (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      }
-    );
-  });
-}
-
-function getAllUsers() {
-  return new Promise((resolve, reject) => {
-    db.all(
-      "SELECT username FROM users ORDER BY username",
-      [],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      }
-    );
-  });
-}
 
 module.exports = { saveMessage, getMessages, saveUser, findUser, getAllUsers };

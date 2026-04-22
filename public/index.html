@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Kafka Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,18 +18,25 @@
   </div>
 
   <div id="container">
-    <div id="sidebar">
-      <div id="user-profile">
-        <div class="profile-icon"></div>
-        <div class="profile-info">
-          <div class="profile-name"></div>
-          <div class="profile-status">
-            <span class="status-indicator"></span>
-            <span>Secure Connection</span>
-          </div>
-        </div>
+    <div id="left-nav">
+      <div class="nav-logo">K</div>
+      <div class="nav-item active" title="All Chats">
+        <img src="/icons/message-circle.svg" alt="Chats" class="icon">
       </div>
-      <h2>Available Users</h2>
+      <div class="nav-item" title="Archive">
+        <img src="/icons/archive.svg" alt="Archive" class="icon">
+      </div>
+      <div class="nav-spacer"></div>
+      <div class="nav-logout" onclick="logout()" title="Logout">
+        <img src="/icons/log-out.svg" alt="Logout" class="icon">
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div id="search-bar">
+        <input type="text" placeholder="Search" id="search-input" />
+      </div>
+      <h2>All Chats</h2>
       <div id="contacts">
         <!-- Users will be loaded dynamically -->
       </div>
@@ -36,8 +44,19 @@
 
     <div id="chat-area">
       <div id="chat-header">
-        <h3>Select a user to start secure chat</h3>
-        <div id="credit">@kiprutobeauttah</div>
+        <div id="chat-header-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()" title="Menu">
+            <img src="/icons/menu.svg" alt="Menu" class="icon">
+          </button>
+          <div class="chat-avatar" id="chat-avatar"></div>
+          <h3 id="chat-title">Select a user to start secure chat</h3>
+        </div>
+        <div id="chat-header-right">
+          <button onclick="openGroupInfo()" class="icon-btn" title="Group Info">
+            <img src="/icons/info.svg" alt="Info" class="icon">
+          </button>
+          <div id="credit">@kiprutobeauttah</div>
+        </div>
       </div>
       <div id="chat">
         <div class="info-message">
@@ -46,8 +65,28 @@
         </div>
       </div>
       <div id="message-input">
-        <input id="msg" placeholder="Type an encrypted message..." />
-        <button onclick="sendMsg()">➤</button>
+        <button class="attach-btn" title="Attach file">
+          <img src="/icons/paperclip.svg" alt="Attach" class="icon">
+        </button>
+        <input id="msg" placeholder="Your message" />
+        <button onclick="sendMsg()" title="Send message">
+          <img src="/icons/send.svg" alt="Send" class="icon">
+        </button>
+      </div>
+    </div>
+
+    <div id="group-info" style="display: none;">
+      <div id="group-info-header">
+        <h3>Group Info</h3>
+        <button class="close-btn" onclick="closeGroupInfo()">×</button>
+      </div>
+      <div id="group-info-content">
+        <div class="group-section">
+          <div class="group-section-title">2 MEMBERS</div>
+          <div id="group-members">
+            <!-- Members will be loaded dynamically -->
+          </div>
+        </div>
       </div>
     </div>
   </div>

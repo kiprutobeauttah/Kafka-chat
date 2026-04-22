@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: kafka-chat-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kafka-chat-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+
+databases:
+  - name: kafka-chat-db
+    databaseName: kafka_chat
+    user: kafka_chat_user
+    plan: free
