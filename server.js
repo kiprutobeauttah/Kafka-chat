@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const { Kafka } = require("kafkajs");
-const { saveMessage, getMessages, saveUser, findUser, getAllUsers } = require("./db");
+const { saveMessage, getMessages, saveUser, findUser, getAllUsers, deleteMessage } = require("./db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const os = require("os");
@@ -39,18 +39,38 @@ wss.on("connection", async (ws) => {
   ws.on("message", async (raw) => {
     const data = JSON.parse(raw.toString());
 
+    if (data.action === "delete") {
+      await deleteMessage(data.messageId, data.user, data.deleteForEveryone);
+      
+      const deletePayload = {
+        type: "delete",
+        messageId: data.messageId,
+        deleteForEveryone: data.deleteForEveryone,
+        deletedBy: data.user
+      };
+      
+      await producer.send({
+        topic: TOPIC,
+        messages: [{ value: JSON.stringify(deletePayload) }],
+      });
+      return;
+    }
+
     const payload = {
       user: data.user,
-      message: data.message,
+      message: data.message || data.fileName,
+      type: data.type || "text",
+      fileName: data.fileName,
+      fileType: data.fileType,
+      fileSize: data.fileSize,
+      fileData: data.fileData
     };
 
-    // Save to DB
-    saveMessage(payload.user, payload.message);
+    const savedMessage = await saveMessage(payload.user, payload.message);
 
-    // Send to Kafka
     await producer.send({
       topic: TOPIC,
-      messages: [{ value: JSON.stringify(payload) }],
+      messages: [{ value: JSON.stringify({ ...payload, id: savedMessage.id }) }],
     });
   });
 
@@ -72,7 +92,11 @@ async function run() {
 
         clients.forEach((ws) => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: "message", data: msg }));
+            if (msg.type === "delete") {
+              ws.send(JSON.stringify({ type: "delete", data: msg }));
+            } else {
+              ws.send(JSON.stringify({ type: "message", data: msg }));
+            }
           }
         });
       },

@@ -11,10 +11,12 @@ datasource db {
 }
 
 model messages {
-  id        Int       @id @default(autoincrement())
-  user      String?   @db.VarChar(255)
-  message   String?   @db.Text
-  timestamp DateTime? @default(now()) @db.Timestamp(6)
+  id          Int       @id @default(autoincrement())
+  user        String?   @db.VarChar(255)
+  message     String?   @db.Text
+  timestamp   DateTime? @default(now()) @db.Timestamp(6)
+  deletedFor  String?   @db.Text
+  deletedForAll Boolean @default(false)
 }
 
 model users {

@@ -82,36 +82,40 @@ run-kafka-chat.bat
 Run the `.sh` file:
 ```bash
 cd kafka
-./run-kafka-chat.sh
+./start.sh
 ```
 Ensure the `.sh` file has executable permissions:
 ```bash
-chmod +x kafka/run-kafka-chat.sh
+chmod +x start.sh
 ```
 
 ## Download Kafka
 To download and extract Kafka, use the provided scripts in the `kafka` folder:
 
-#### Windows
+<!-- #### Windows
 Run the `.bat` file:
 ```cmd
 cd kafka
 download-kafka.bat
-```
+``` -->
 
 #### Linux/Mac
 Run the `.sh` file:
 ```bash
 cd kafka
-./download-kafka.sh
+./start.sh
 ```
 Ensure the `.sh` file has executable permissions:
 ```bash
-chmod +x kafka/download-kafka.sh
+chmod +x start.sh
 ```
 
 ## Screenshots
 ### Chat Interface
+> latest  
+
+![Chat Interface](.img/kafka-2.png)
+
 ![Chat Interface](scrt/new-login.png)
 ![Chat Interface](scrt/new-chat.png)
 

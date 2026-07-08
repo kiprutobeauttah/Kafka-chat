@@ -4,14 +4,39 @@ const prisma = new PrismaClient();
 
 async function saveMessage(user, message) {
   try {
-    await prisma.messages.create({
+    const msg = await prisma.messages.create({
       data: {
         user,
         message,
       },
     });
+    return msg;
   } catch (error) {
     console.error('Error saving message:', error);
+    throw error;
+  }
+}
+
+async function deleteMessage(messageId, username, deleteForEveryone) {
+  try {
+    if (deleteForEveryone) {
+      await prisma.messages.update({
+        where: { id: messageId },
+        data: { deletedForAll: true }
+      });
+    } else {
+      const message = await prisma.messages.findUnique({
+        where: { id: messageId }
+      });
+      const deletedFor = message.deletedFor ? JSON.parse(message.deletedFor) : [];
+      deletedFor.push(username);
+      await prisma.messages.update({
+        where: { id: messageId },
+        data: { deletedFor: JSON.stringify(deletedFor) }
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting message:', error);
     throw error;
   }
 }
@@ -81,4 +106,4 @@ process.on('beforeExit', async () => {
   await prisma.$disconnect();
 });
 
-module.exports = { saveMessage, getMessages, saveUser, findUser, getAllUsers };
+module.exports = { saveMessage, getMessages, saveUser, findUser, getAllUsers, deleteMessage };

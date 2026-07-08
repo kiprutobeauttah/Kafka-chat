@@ -4,3 +4,12 @@ chat.db
 *.db
 *.db-journal
 .env
+
+# Runtime directories
+logs/
+pids/
+.vscode
+style.css.backup
+mobile.css.backup
+prisma/schema.prisma
+render.yaml
